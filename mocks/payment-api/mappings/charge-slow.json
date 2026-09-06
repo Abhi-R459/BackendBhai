@@ -1,0 +1,21 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "url": "/charges",
+    "headers": {
+      "X-Simulate-Slow": {
+        "matches": "true"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 5000,
+    "bodyFileName": "charge-timeout.json",
+    "headers": {
+      "Content-Type": "application/json",
+      "X-Mock-Delay": "5000ms"
+    }
+  }
+}

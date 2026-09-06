@@ -1,0 +1,27 @@
+{
+  "name": "backendbhai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome DevTools for backend systems",
+  "packageManager": "pnpm@12.3.4",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev": "pnpm -r run dev",
+    "test": "pnpm -r run test",
+    "up": "docker compose up -d --build",
+    "down": "docker compose down",
+    "seed": "node scripts/seed.js",
+    "reset-db": "node scripts/reset-db.js",
+    "logs": "docker compose logs -f",
+    "demo": "node scripts/demo.js",
+    "start-local": "node scripts/start-local.js"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.4.1",
+    "@types/pg": "^8.23.1",
+    "express": "^5.2.1",
+    "pg": "^8.23.0",
+    "typescript": "^5.4.5"
+  }
+}

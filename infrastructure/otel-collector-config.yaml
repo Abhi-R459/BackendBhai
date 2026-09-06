@@ -1,0 +1,46 @@
+# BackendBhai: OpenTelemetry Collector Configuration
+# Contracts source: contracts/TELEMETRY.md & DECISIONS.md D-002, D-003
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 500ms
+    send_batch_size: 100
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 20
+
+exporters:
+  # OTLP HTTP Export to DevTools core server per Architecture Decision D-003
+  otlphttp/devtools:
+    endpoint: http://devtools-core:4001/api/v1/telemetry
+    encoding: json
+    tls:
+      insecure: true
+
+  # Debug console logger
+  debug:
+    verbosity: normal
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/devtools, debug]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug]
+
+  telemetry:
+    logs:
+      level: info

@@ -1,0 +1,9 @@
+{
+  "id": "ch_mock_delayed_67890",
+  "status": "succeeded",
+  "amount": 1000,
+  "currency": "usd",
+  "paid": true,
+  "delayed": true,
+  "provider": "mock-payment-wiremock"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "ch_mock_success_12345",
+  "status": "succeeded",
+  "amount": 1000,
+  "currency": "usd",
+  "paid": true,
+  "provider": "mock-payment-wiremock"
+}

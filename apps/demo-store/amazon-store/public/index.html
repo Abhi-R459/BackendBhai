@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon.com: Online Shopping for Electronics, Hardware & More</title>
+  <style>
+    :root {
+      --amz-dark: #131921;
+      --amz-subnav: #232f3e;
+      --amz-yellow: #ffd814;
+      --amz-yellow-hover: #f7ca00;
+      --amz-orange: #f08804;
+      --amz-link: #007185;
+      --amz-price: #b12704;
+      --amz-border: #d5d9d9;
+      --amz-bg: #eaeded;
+      --amz-card: #ffffff;
+      --amz-prime: #00a8e1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Amazon Ember", Arial, sans-serif; }
+    body { background: var(--amz-bg); color: #0f1111; min-height: 100vh; font-size: 14px; }
+
+    /* Top Nav */
+    .header-top { background: var(--amz-dark); color: white; display: flex; align-items: center; padding: 8px 16px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+    .logo-box { display: flex; align-items: baseline; cursor: pointer; padding: 4px 8px; border: 1px solid transparent; border-radius: 2px; }
+    .logo-box:hover { border-color: white; }
+    .amz-logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -1px; color: white; }
+    .amz-logo span { color: #ff9900; }
+    .amz-dot { font-size: 0.8rem; color: #ccc; margin-left: 2px; }
+
+    .deliver-box { display: flex; flex-direction: column; cursor: pointer; padding: 4px 8px; border: 1px solid transparent; border-radius: 2px; font-size: 0.75rem; color: #ccc; }
+    .deliver-box:hover { border-color: white; }
+    .deliver-box strong { color: white; font-size: 0.85rem; }
+
+    .search-bar { flex: 1; display: flex; height: 40px; border-radius: 4px; overflow: hidden; }
+    .search-select { background: #e6e6e6; border: none; padding: 0 10px; font-size: 0.75rem; border-right: 1px solid #ddd; outline: none; cursor: pointer; }
+    .search-input { flex: 1; border: none; padding: 0 12px; font-size: 0.95rem; outline: none; }
+    .search-btn { background: #febd69; border: none; width: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .search-btn:hover { background: #f3a847; }
+
+    .nav-account { padding: 4px 8px; border: 1px solid transparent; border-radius: 2px; font-size: 0.75rem; color: #ccc; cursor: pointer; }
+    .nav-account:hover { border-color: white; }
+    .nav-account strong { color: white; font-size: 0.85rem; display: block; }
+
+    .nav-cart { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border: 1px solid transparent; border-radius: 2px; cursor: pointer; color: white; text-decoration: none; position: relative; }
+    .nav-cart:hover { border-color: white; }
+    .cart-icon { font-size: 1.5rem; }
+    .cart-count { background: #f08804; color: #111; font-weight: 800; font-size: 0.85rem; border-radius: 9999px; padding: 0 6px; position: absolute; top: 2px; left: 16px; }
+
+    /* Sub Nav */
+    .subnav { background: var(--amz-subnav); color: white; padding: 6px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; }
+    .subnav-left { display: flex; gap: 16px; align-items: center; }
+    .subnav-item { cursor: pointer; padding: 4px 6px; border: 1px solid transparent; border-radius: 2px; }
+    .subnav-item:hover { border-color: white; }
+
+    /* Chaos Sync Pill */
+    .chaos-pill { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.25); border-radius: 9999px; padding: 3px 12px; font-size: 0.78rem; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .chaos-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+    .link-control { color: #febd69; text-decoration: none; margin-left: 6px; font-weight: bold; }
+    .link-control:hover { text-decoration: underline; }
+
+    /* Hero */
+    .hero-banner { background: linear-gradient(180deg, #131921 0%, #232f3e 70%, var(--amz-bg) 100%); color: white; padding: 24px 20px 60px; display: flex; justify-content: space-between; align-items: center; }
+    .hero-text h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 6px; }
+    .hero-text p { font-size: 1rem; color: #ddd; }
+    .prime-tag { background: #00a8e1; color: white; font-weight: 800; font-size: 0.75rem; padding: 2px 8px; border-radius: 3px; }
+
+    /* Products Grid */
+    .main-content { max-width: 1350px; margin: -40px auto 40px; padding: 0 16px; position: relative; z-index: 10; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    
+    .product-card { background: white; border-radius: 4px; padding: 18px; display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.15s; position: relative; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+    .badge-choice { background: #232f3e; color: white; font-size: 0.65rem; padding: 3px 8px; border-radius: 2px; width: fit-content; margin-bottom: 10px; font-weight: 600; }
+    .product-img-box { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: #f8fafc; border-radius: 4px; margin-bottom: 12px; }
+    .product-title { font-size: 0.95rem; font-weight: 600; line-height: 1.3; color: #0f1111; margin-bottom: 6px; cursor: pointer; }
+    .product-title:hover { color: #c45500; }
+    .product-rating { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #007185; margin-bottom: 8px; }
+    .stars { color: #ffa41c; font-size: 0.95rem; }
+    .price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+    .price-symbol { font-size: 0.8rem; vertical-align: top; color: var(--amz-price); }
+    .price-val { font-size: 1.4rem; font-weight: 700; color: var(--amz-price); }
+    .price-orig { font-size: 0.8rem; color: #565959; text-decoration: line-through; }
+    .prime-delivery { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #565959; margin-bottom: 14px; }
+    .prime-delivery strong { color: #0f1111; }
+    
+    .card-actions { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+    .btn-cart { background: var(--amz-yellow); border: 1px solid #fcd200; border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-align: center; }
+    .btn-cart:hover { background: var(--amz-yellow-hover); }
+    .btn-buy { background: #ffa41c; border: 1px solid #ff8f00; border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-align: center; }
+    .btn-buy:hover { background: #fa8900; }
+
+    /* Checkout Drawer / Modal */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center; padding: 16px; }
+    .modal-backdrop.open { display: flex; }
+    .checkout-modal { background: white; width: 100%; max-width: 600px; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: pop 0.2s ease-out; }
+    @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .modal-header { background: #f0f2f2; border-bottom: 1px solid var(--amz-border); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 1.1rem; }
+    .btn-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #555; }
+    .modal-body { padding: 20px; max-height: 75vh; overflow-y: auto; }
+    
+    .review-section { border-bottom: 1px solid var(--amz-border); padding-bottom: 14px; margin-bottom: 14px; }
+    .review-section h4 { font-size: 0.95rem; margin-bottom: 6px; color: #333; }
+    .review-text { font-size: 0.85rem; color: #565959; line-height: 1.4; }
+    
+    .order-summary-box { background: #f7fafa; border: 1px solid var(--amz-border); border-radius: 6px; padding: 14px; margin-bottom: 16px; }
+    .summary-line { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; color: #565959; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; color: var(--amz-price); border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px; }
+    
+    .btn-place-order { background: var(--amz-yellow); border: 1px solid #a88734; border-radius: 8px; width: 100%; padding: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 5px rgba(213,217,217,.5); }
+    .btn-place-order:hover { background: var(--amz-yellow-hover); }
+
+    /* Dynamic Checkout Feedback Alerts */
+    .spinner-box { display: none; text-align: center; padding: 20px 0; }
+    .spinner-box.active { display: block; }
+    .amz-spinner { width: 36px; height: 36px; border: 3px solid #ddd; border-top-color: #f08804; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-msg { font-size: 0.9rem; font-weight: 600; color: #333; }
+    
+    .feedback-alert { display: none; padding: 16px; border-radius: 6px; margin-bottom: 16px; }
+    .feedback-alert.active { display: block; }
+    .alert-success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+    .alert-error { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+    .alert-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  </style>
+</head>
+<body>
+
+  <!-- Amazon Top Navigation -->
+  <header class="header-top">
+    <div class="logo-box" onclick="location.reload()">
+      <div class="amz-logo">amazon<span>.com</span><span class="amz-dot">Prime</span></div>
+    </div>
+
+    <div class="deliver-box">
+      <span>Deliver to Alex</span>
+      <strong>Seattle 98101</strong>
+    </div>
+
+    <div class="search-bar">
+      <select class="search-select">
+        <option>All Departments</option>
+        <option>Computers & Hardware</option>
+        <option>Electronics</option>
+      </select>
+      <input type="text" class="search-input" placeholder="Search Amazon" value="Developer Workstation Hardware">
+      <button class="search-btn">🔍</button>
+    </div>
+
+    <div class="nav-account">
+      <span>Hello, Alex</span>
+      <strong>Account & Lists ▾</strong>
+    </div>
+
+    <div class="nav-account">
+      <span>Returns</span>
+      <strong>& Orders</strong>
+    </div>
+
+    <div class="nav-cart" onclick="openCheckout()">
+      <span class="cart-icon">🛒</span>
+      <span class="cart-count" id="cart-counter">1</span>
+      <span style="font-weight: 700; margin-top: 6px;">Cart</span>
+    </div>
+  </header>
+
+  <!-- Amazon Sub-navigation Bar -->
+  <div class="subnav">
+    <div class="subnav-left">
+      <span class="subnav-item">☰ All</span>
+      <span class="subnav-item">Today's Deals</span>
+      <span class="subnav-item">Customer Service</span>
+      <span class="subnav-item">Registry</span>
+      <span class="subnav-item">Gift Cards</span>
+      <span class="subnav-item">Sell</span>
+    </div>
+
+    <!-- Live Chaos Indicator Connected to Master Injector -->
+    <div class="chaos-pill">
+      <span class="chaos-dot" id="chaos-indicator-dot"></span>
+      <span>Chaos Engine: <strong id="chaos-mode-badge" style="color: #67e8f9;">NORMAL</strong></span>
+      <a href="http://localhost:4002" target="_blank" class="link-control">Master Injector (:4002) ↗</a>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero-banner">
+    <div class="hero-text">
+      <h2>Featured Developer Gear & Hardware</h2>
+      <p>Save up to 30% on ergonomic keyboards, 4K displays & multi-port hubs.</p>
+    </div>
+    <div>
+      <span class="prime-tag">prime</span> <span style="font-size: 0.9rem; font-weight: 600;">FREE Next-Day Delivery Included</span>
+    </div>
+  </div>
+
+  <!-- Main Product Showcase Grid -->
+  <div class="main-content">
+    <div class="product-grid" id="product-grid">
+
+      <!-- Item 1 -->
+      <div class="product-card">
+        <div class="badge-choice">Amazon's Choice</div>
+        <div class="product-img-box">⌨️</div>
+        <div class="product-title">Mechanical Gaming Keyboard (Linear Red Switches, Hot-Swappable RGB)</div>
+        <div class="product-rating">
+          <span class="stars">★★★★★</span>
+          <span>4.8 (2,419)</span>
+        </div>
+        <div class="price-row">
+          <span class="price-symbol">$</span>
+          <span class="price-val">89</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--amz-price);">99</span>
+          <span class="price-orig">$119.99</span>
+        </div>
+        <div class="prime-delivery">
+          <span class="prime-tag">prime</span>
+          <span>FREE delivery <strong>Tomorrow, 2 PM - 6 PM</strong></span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-cart" onclick="addItemToCart('item-1', 'Mechanical Gaming Keyboard', 89.99)">Add to Cart</button>
+          <button class="btn-buy" onclick="buyNow('item-1', 'Mechanical Gaming Keyboard', 89.99)">Buy Now</button>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="product-card">
+        <div class="badge-choice">Best Seller</div>
+        <div class="product-img-box">🖱️</div>
+        <div class="product-title">Ergonomic Wireless Mouse with Hyper-Scroll & Thumb Wheel</div>
+        <div class="product-rating">
+          <span class="stars">★★★★★</span>
+          <span>4.7 (8,912)</span>
+        </div>
+        <div class="price-row">
+          <span class="price-symbol">$</span>
+          <span class="price-val">49</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--amz-price);">99</span>
+          <span class="price-orig">$69.99</span>
+        </div>
+        <div class="prime-delivery">
+          <span class="prime-tag">prime</span>
+          <span>FREE delivery <strong>Tomorrow, 2 PM - 6 PM</strong></span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-cart" onclick="addItemToCart('item-2', 'Ergonomic Wireless Mouse', 49.99)">Add to Cart</button>
+          <button class="btn-buy" onclick="buyNow('item-2', 'Ergonomic Wireless Mouse', 49.99)">Buy Now</button>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="product-card">
+        <div class="badge-choice">Amazon's Choice</div>
+        <div class="product-img-box">🖥️</div>
+        <div class="product-title">27-inch 4K UHD IPS Designer Monitor (USB-C 90W Charging, 99% sRGB)</div>
+        <div class="product-rating">
+          <span class="stars">★★★★★</span>
+          <span>4.9 (1,120)</span>
+        </div>
+        <div class="price-row">
+          <span class="price-symbol">$</span>
+          <span class="price-val">349</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--amz-price);">00</span>
+          <span class="price-orig">$429.00</span>
+        </div>
+        <div class="prime-delivery">
+          <span class="prime-tag">prime</span>
+          <span>FREE delivery <strong>Tomorrow, 2 PM - 6 PM</strong></span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-cart" onclick="addItemToCart('item-3', '27-inch 4K UHD Monitor', 349.00)">Add to Cart</button>
+          <button class="btn-buy" onclick="buyNow('item-3', '27-inch 4K UHD Monitor', 349.00)">Buy Now</button>
+        </div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="product-card">
+        <div class="product-img-box">🔌</div>
+        <div class="product-title">USB-C Multiport Docking Station 10-in-1 (Dual 4K HDMI, Gigabit Ethernet)</div>
+        <div class="product-rating">
+          <span class="stars">★★★★☆</span>
+          <span>4.6 (4,320)</span>
+        </div>
+        <div class="price-row">
+          <span class="price-symbol">$</span>
+          <span class="price-val">69</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--amz-price);">50</span>
+          <span class="price-orig">$89.00</span>
+        </div>
+        <div class="prime-delivery">
+          <span class="prime-tag">prime</span>
+          <span>FREE delivery <strong>Tomorrow, 2 PM - 6 PM</strong></span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-cart" onclick="addItemToCart('item-4', 'USB-C Docking Station', 69.50)">Add to Cart</button>
+          <button class="btn-buy" onclick="buyNow('item-4', 'USB-C Docking Station', 69.50)">Buy Now</button>
+        </div>
+      </div>
+
+      <!-- Item 5 -->
+      <div class="product-card">
+        <div class="badge-choice">Best Seller</div>
+        <div class="product-img-box">🎧</div>
+        <div class="product-title">Active Noise-Cancelling Bluetooth Headphones with Spatial Audio</div>
+        <div class="product-rating">
+          <span class="stars">★★★★★</span>
+          <span>4.8 (15,280)</span>
+        </div>
+        <div class="price-row">
+          <span class="price-symbol">$</span>
+          <span class="price-val">199</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--amz-price);">99</span>
+          <span class="price-orig">$249.99</span>
+        </div>
+        <div class="prime-delivery">
+          <span class="prime-tag">prime</span>
+          <span>FREE delivery <strong>Tomorrow, 2 PM - 6 PM</strong></span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-cart" onclick="addItemToCart('item-5', 'Noise-Cancelling Headphones', 199.99)">Add to Cart</button>
+          <button class="btn-buy" onclick="buyNow('item-5', 'Noise-Cancelling Headphones', 199.99)">Buy Now</button>
+        </div>
+      </div>
+
+      <!-- Item 6 -->
+      <div class="product-card">
+        <div class="product-img-box">⚡</div>
+        <div class="product-title">GaN 100W Fast Wall Charger (4-Port Foldable Prongs for Laptop & Phone)</div>
+        <div class="product-rating">
+          <span class="stars">★★★★★</span>
+          <span>4.9 (6,700)</span>
+        </div>
+        <div class="price-row">
+          <span class="price-symbol">$</span>
+          <span class="price-val">45</span>
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--amz-price);">00</span>
+          <span class="price-orig">$59.99</span>
+        </div>
+        <div class="prime-delivery">
+          <span class="prime-tag">prime</span>
+          <span>FREE delivery <strong>Tomorrow, 2 PM - 6 PM</strong></span>
+        </div>
+        <div class="card-actions">
+          <button class="btn-cart" onclick="addItemToCart('item-6', 'GaN 100W Wall Charger', 45.00)">Add to Cart</button>
+          <button class="btn-buy" onclick="buyNow('item-6', 'GaN 100W Wall Charger', 45.00)">Buy Now</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Amazon Checkout Modal -->
+  <div class="modal-backdrop" id="checkout-modal">
+    <div class="checkout-modal">
+      <div class="modal-header">
+        <h3>Review your order & checkout</h3>
+        <button class="btn-close" onclick="closeCheckout()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Dynamic Feedback Alert (Success / Error / Warning) -->
+        <div class="feedback-alert" id="feedback-alert">
+          <div id="alert-content"></div>
+        </div>
+
+        <!-- Animated Progress Spinner -->
+        <div class="spinner-box" id="checkout-spinner">
+          <div class="amz-spinner"></div>
+          <div class="spinner-msg" id="spinner-status-msg">Authorizing your order with payment gateway...</div>
+        </div>
+
+        <div id="checkout-form-content">
+          <div class="review-section">
+            <h4>Shipping address</h4>
+            <div class="review-text">
+              Alex Chen<br>
+              1200 4th Ave, Suite 2400<br>
+              Seattle, WA 98101<br>
+              United States
+            </div>
+          </div>
+
+          <div class="review-section">
+            <h4>Payment method</h4>
+            <div class="review-text">
+              💳 Amazon Prime Rewards Visa Signature ending in <strong>4242</strong><br>
+              Billing address: Same as shipping address
+            </div>
+          </div>
+
+          <div class="order-summary-box">
+            <h4 style="margin-bottom: 8px;">Order Summary</h4>
+            <div class="summary-line">
+              <span>Items (<span id="modal-cart-count">1</span>):</span>
+              <span id="modal-items-total">$89.99</span>
+            </div>
+            <div class="summary-line">
+              <span>Shipping & handling:</span>
+              <span style="color: #007600;">$0.00 (Prime Free)</span>
+            </div>
+            <div class="summary-line">
+              <span>Estimated tax to be collected:</span>
+              <span id="modal-tax">$0.00</span>
+            </div>
+            <div class="summary-total">
+              <span>Order total:</span>
+              <span id="modal-grand-total">$89.99</span>
+            </div>
+          </div>
+
+          <button class="btn-place-order" id="btn-submit-order" onclick="submitAmazonOrder()">
+            Place your order
+          </button>
+          <div style="font-size: 0.72rem; color: #565959; text-align: center; margin-top: 8px;">
+            By placing your order, you agree to Amazon's privacy notice and conditions of use.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_GATEWAY = window.API_GATEWAY_URL || 'http://localhost:3000';
+    let currentChaosMode = 'normal';
+
+    let cart = [
+      { id: 'item-1', name: 'Mechanical Gaming Keyboard', price: 89.99, qty: 1 }
+    ];
+
+    function updateCartBadge() {
+      const count = cart.reduce((sum, i) => sum + i.qty, 0);
+      document.getElementById('cart-counter').textContent = count;
+      document.getElementById('modal-cart-count').textContent = count;
+
+      const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+      document.getElementById('modal-items-total').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('modal-grand-total').textContent = '$' + subtotal.toFixed(2);
+    }
+
+    function addItemToCart(id, name, price) {
+      const existing = cart.find(i => i.id === id);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ id, name, price, qty: 1 });
+      }
+      updateCartBadge();
+      openCheckout();
+    }
+
+    function buyNow(id, name, price) {
+      cart = [{ id, name, price, qty: 1 }];
+      updateCartBadge();
+      openCheckout();
+    }
+
+    function openCheckout() {
+      document.getElementById('checkout-modal').classList.add('open');
+      document.getElementById('feedback-alert').className = 'feedback-alert';
+      document.getElementById('feedback-alert').style.display = 'none';
+      document.getElementById('checkout-form-content').style.display = 'block';
+      document.getElementById('checkout-spinner').classList.remove('active');
+    }
+
+    function closeCheckout() {
+      document.getElementById('checkout-modal').classList.remove('open');
+    }
+
+    // Sync with Master Error Injector's active chaos state
+    async function syncChaosState() {
+      try {
+        const res = await fetch(`${API_GATEWAY}/api/chaos-state`);
+        if (res.ok) {
+          const state = await res.json();
+          currentChaosMode = state.mode;
+          const badge = document.getElementById('chaos-mode-badge');
+          const dot = document.getElementById('chaos-indicator-dot');
+          badge.textContent = state.mode.toUpperCase();
+
+          if (state.mode === 'normal') {
+            dot.style.background = '#10b981';
+            badge.style.color = '#67e8f9';
+          } else if (state.mode === 'heavy') {
+            dot.style.background = '#f59e0b';
+            badge.style.color = '#fde047';
+          } else if (state.mode === 'invalid-auth' || state.mode === 'payment-503') {
+            dot.style.background = '#ef4444';
+            badge.style.color = '#fca5a5';
+          } else {
+            dot.style.background = '#c084fc';
+            badge.style.color = '#d8b4fe';
+          }
+        }
+      } catch (_) {}
+    }
+
+    // Place order through API Gateway
+    async function submitAmazonOrder() {
+      const spinner = document.getElementById('checkout-spinner');
+      const formContent = document.getElementById('checkout-form-content');
+      const alertBox = document.getElementById('feedback-alert');
+      const alertMsg = document.getElementById('alert-content');
+      const spinnerMsg = document.getElementById('spinner-status-msg');
+
+      formContent.style.display = 'none';
+      alertBox.style.display = 'none';
+      spinner.classList.add('active');
+
+      if (currentChaosMode === 'heavy') {
+        spinnerMsg.textContent = 'Allocating database resources for heavy batch order (3s expected)...';
+      } else if (currentChaosMode === 'invalid-auth') {
+        spinnerMsg.textContent = 'Verifying account security credentials with identity provider...';
+      } else if (currentChaosMode === 'slow-payment') {
+        spinnerMsg.textContent = 'Authorizing card payment with external banking network (5s delay)...';
+      } else {
+        spinnerMsg.textContent = 'Submitting order to fulfillment center...';
+      }
+
+      const start = Date.now();
+
+      try {
+        const res = await fetch(`${API_GATEWAY}/api/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: 'user-42',
+            items: cart
+          })
+        });
+
+        const elapsed = Date.now() - start;
+        const data = await res.json().catch(() => ({}));
+        spinner.classList.remove('active');
+
+        if (res.ok) {
+          // Success Path (Normal or Heavy with delay)
+          alertBox.className = 'feedback-alert alert-success active';
+          const isHeavyNotice = currentChaosMode === 'heavy' || elapsed > 2500;
+          alertMsg.innerHTML = `
+            <h3 style="margin-bottom: 6px; color: #166534;">✔ Order placed, thank you!</h3>
+            <p style="margin-bottom: 8px;">Confirmation will be sent to <strong>alex.chen@example.com</strong>.</p>
+            <div style="font-size: 0.8rem; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; font-family: monospace;">
+              Order ID: <strong>${data.orderId || '114-8291039-4820192'}</strong><br>
+              Estimated delivery: <strong>Tomorrow by 8:00 PM</strong><br>
+              Server execution time: <strong>${elapsed}ms</strong> ${isHeavyNotice ? '⚠️ (3s slow DB span captured by BackendBhai!)' : ''}
+            </div>
+            <button onclick="closeCheckout()" style="margin-top: 14px; background: #007185; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer;">Continue shopping</button>
+          `;
+          alertBox.style.display = 'block';
+        } else if (res.status === 401) {
+          // Auth Timeout Error (S-08)
+          alertBox.className = 'feedback-alert alert-error active';
+          alertMsg.innerHTML = `
+            <h3 style="margin-bottom: 6px; color: #991b1b;">⚠️ We encountered a problem with your account</h3>
+            <p style="margin-bottom: 8px;">Your authentication session timed out after <strong>${elapsed}ms</strong>. For your security, please verify your credentials.</p>
+            <div style="font-size: 0.8rem; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; font-family: monospace;">
+              Error Code: <strong>HTTP 401 Unauthorized</strong><br>
+              Backend Reason: <strong>${data.message || 'Auth service timeout (5000ms delay)'}</strong>
+            </div>
+            <button onclick="formContent.style.display='block'; alertBox.style.display='none';" style="margin-top: 14px; background: #dc2626; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer;">Retry Authentication</button>
+          `;
+          alertBox.style.display = 'block';
+        } else if (res.status === 503 || res.status === 502) {
+          // Payment Provider 503 Failure (S-06)
+          alertBox.className = 'feedback-alert alert-error active';
+          alertMsg.innerHTML = `
+            <h3 style="margin-bottom: 6px; color: #991b1b;">⚠️ Payment Authorization Failed</h3>
+            <p style="margin-bottom: 8px;">The external payment gateway returned <strong>503 Service Unavailable</strong>. Your card ending in 4242 has <strong>not</strong> been charged.</p>
+            <div style="font-size: 0.8rem; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; font-family: monospace;">
+              Failure Provider: <strong>Mock Payment API (:4000)</strong><br>
+              Status: <strong>503 Gateway Temporarily Unavailable</strong><br>
+              Duration: <strong>${elapsed}ms</strong>
+            </div>
+            <button onclick="formContent.style.display='block'; alertBox.style.display='none';" style="margin-top: 14px; background: #ea580c; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer;">Change payment method</button>
+          `;
+          alertBox.style.display = 'block';
+        } else {
+          // General failure
+          alertBox.className = 'feedback-alert alert-error active';
+          alertMsg.innerHTML = `
+            <h3 style="margin-bottom: 6px; color: #991b1b;">⚠️ Error placing order</h3>
+            <p>${data.error || data.message || 'Gateway routing error'}</p>
+            <button onclick="formContent.style.display='block'; alertBox.style.display='none';" style="margin-top: 14px; background: #475569; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer;">Back</button>
+          `;
+          alertBox.style.display = 'block';
+        }
+      } catch (networkErr) {
+        spinner.classList.remove('active');
+        alertBox.className = 'feedback-alert alert-error active';
+        alertMsg.innerHTML = `
+          <h3 style="margin-bottom: 6px; color: #991b1b;">⚠️ Network connection error</h3>
+          <p>Could not reach API Gateway at ${API_GATEWAY}. Ensure services are running.</p>
+          <button onclick="formContent.style.display='block'; alertBox.style.display='none';" style="margin-top: 14px; background: #475569; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer;">Retry</button>
+        `;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    updateCartBadge();
+    setInterval(syncChaosState, 1500);
+    syncChaosState();
+  </script>
+</body>
+</html>

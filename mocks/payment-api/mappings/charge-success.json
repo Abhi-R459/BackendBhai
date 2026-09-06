@@ -1,0 +1,14 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "url": "/charges"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "charge-success.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

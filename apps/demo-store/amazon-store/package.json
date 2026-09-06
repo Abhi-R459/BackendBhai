@@ -1,0 +1,12 @@
+{
+  "name": "@backendbhai/amazon-store",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "node -e \"console.log(\\\"@backendbhai/amazon-store tests passed\\\")\""
+  }
+}

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BackendBhai — Master Error Injector & Chaos Control Plane</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --purple: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
+    h1 { font-size: 1.6rem; display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.5px; }
+    .badge { background: #ef4444; color: white; font-size: 0.75rem; padding: 4px 10px; border-radius: 9999px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .nav-links { display: flex; gap: 14px; align-items: center; }
+    .nav-btn { color: white; text-decoration: none; font-size: 0.85rem; padding: 8px 14px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
+    .nav-btn:hover { opacity: 0.9; }
+    .nav-devtools { background: #0284c7; }
+    .nav-amazon { background: #ff9900; color: #111; }
+    
+    /* Master Chaos Control Banner */
+    .chaos-panel { background: linear-gradient(135deg, #1e1b4b 0%, #1e293b 100%); border: 2px solid #6366f1; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.2); }
+    .chaos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .chaos-title { font-size: 1.25rem; font-weight: 700; color: #a5b4fc; display: flex; align-items: center; gap: 8px; }
+    .current-state-pill { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 9999px; font-family: monospace; font-size: 0.9rem; font-weight: 600; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+    .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+    
+    .state-toggle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .btn-toggle { background: #0f172a; border: 1px solid #334155; color: var(--text); padding: 12px; border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.15s; position: relative; }
+    .btn-toggle:hover { border-color: #64748b; background: #1e293b; }
+    .btn-toggle.active { border-color: #38bdf8; background: #0c4a6e; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+    .btn-toggle .icon { font-size: 1.3rem; margin-bottom: 6px; }
+    .btn-toggle .title { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+    .btn-toggle .desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.2; }
+    
+    .chaos-info { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px 14px; font-size: 0.85rem; color: #cbd5e1; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* Dual Columns */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+    h2 { font-size: 1.05rem; margin-bottom: 14px; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
+    
+    .product-list { display: flex; flex-direction: column; gap: 10px; }
+    .product-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 6px; }
+    .product-title { font-weight: 500; font-size: 0.9rem; }
+    .product-price { color: #38bdf8; font-family: monospace; font-size: 0.95rem; }
+    
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 600; transition: background 0.15s; }
+    .btn-add { background: var(--border); color: var(--text); font-size: 0.8rem; }
+    .btn-add:hover { background: #475569; }
+    
+    .action-panel { display: flex; flex-direction: column; gap: 10px; }
+    .btn-action { width: 100%; text-align: left; padding: 12px 14px; border-radius: 6px; font-size: 0.9rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+    .btn-normal { background: #2563eb; }
+    .btn-normal:hover { background: #1d4ed8; }
+    .btn-heavy { background: #d97706; color: #fff; }
+    .btn-heavy:hover { background: #b45309; }
+    .btn-auth { background: #dc2626; }
+    .btn-auth:hover { background: #b91c1c; }
+    .btn-batch { background: #7c3aed; }
+    .btn-batch:hover { background: #6d28d9; }
+    
+    .cart-summary { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-weight: 600; font-size: 1rem; }
+    
+    .result-box { margin-top: 24px; background: #000000; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: monospace; font-size: 0.85rem; max-height: 250px; overflow-y: auto; }
+    .result-line { margin-bottom: 6px; word-break: break-all; }
+    .status-200 { color: var(--success); }
+    .status-401 { color: var(--warning); }
+    .status-500, .status-503 { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>⚡ Master Error Injector <span class="badge">Control Plane</span></h1>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+          Controls global chaos state for the entire BackendBhai ecosystem & Amazon Store
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="http://localhost:4003" target="_blank" class="nav-btn nav-amazon">
+          🛒 Open Amazon Storefront (:4003) ↗
+        </a>
+        <a href="http://localhost:4001" target="_blank" class="nav-btn nav-devtools">
+          🔍 DevTools UI (:4001) ↗
+        </a>
+      </div>
+    </header>
+
+    <!-- Master Chaos Control Engine -->
+    <div class="chaos-panel">
+      <div class="chaos-header">
+        <div class="chaos-title">
+          <span>🎮 Global Chaos Controller</span>
+        </div>
+        <div class="current-state-pill">
+          <span class="pulse-dot" id="state-dot"></span>
+          <span>Active Mode: <strong id="active-state-name" style="color: #38bdf8;">NORMAL</strong></span>
+        </div>
+      </div>
+
+      <div class="state-toggle-grid">
+        <!-- 1. Normal Mode -->
+        <div class="btn-toggle active" id="mode-normal" onclick="setChaosMode('normal')">
+          <div class="icon">🟢</div>
+          <div class="title">Normal Path</div>
+          <div class="desc">Fast 200ms checkout, no deliberate delays or errors.</div>
+        </div>
+
+        <!-- 2. Heavy Order Mode -->
+        <div class="btn-toggle" id="mode-heavy" onclick="setChaosMode('heavy')">
+          <div class="icon">🐢</div>
+          <div class="title">Heavy Order DB</div>
+          <div class="desc">&gt;10 items forces 3s PostgreSQL delay (SELECT pg_sleep).</div>
+        </div>
+
+        <!-- 3. Auth Timeout Mode -->
+        <div class="btn-toggle" id="mode-invalid-auth" onclick="setChaosMode('invalid-auth')">
+          <div class="icon">⛔</div>
+          <div class="title">Auth Timeout</div>
+          <div class="desc">Invalid auth token causes 5s timeout & 401 rejection.</div>
+        </div>
+
+        <!-- 4. Payment 503 Mode -->
+        <div class="btn-toggle" id="mode-payment-503" onclick="setChaosMode('payment-503')">
+          <div class="icon">💥</div>
+          <div class="title">Payment 503</div>
+          <div class="desc">External payment gateway returns 503 Unavailable.</div>
+        </div>
+
+        <!-- 5. Slow Payment Mode -->
+        <div class="btn-toggle" id="mode-slow-payment" onclick="setChaosMode('slow-payment')">
+          <div class="icon">⏳</div>
+          <div class="title">Slow Payment</div>
+          <div class="desc">WireMock 5s external payment gateway authorization delay.</div>
+        </div>
+
+        <!-- 6. Random Chaos -->
+        <div class="btn-toggle" id="mode-random" onclick="setChaosMode('random')">
+          <div class="icon">🎲</div>
+          <div class="title">Random Chaos</div>
+          <div class="desc">Intermittent 30% slow delay, 10% 503, periodic cache miss.</div>
+        </div>
+      </div>
+
+      <div class="chaos-info">
+        <span id="chaos-description">All orders placed on the Amazon Store (:4003) will execute normally with fast response times.</span>
+        <span style="color: #94a3b8; font-size: 0.8rem;" id="chaos-sync-time">Synced</span>
+      </div>
+    </div>
+
+    <!-- Interactive Test Area -->
+    <div class="grid">
+      <div class="card">
+        <h2>Demo Hardware Inventory</h2>
+        <div class="product-list" id="products">
+          <div class="product-item">
+            <div>
+              <div class="product-title">Mechanical Keyboard (Linear Red)</div>
+              <div class="product-price">$89.99</div>
+            </div>
+            <button class="btn-add" onclick="addToCart('item-1', 'Mechanical Keyboard', 89.99)">+ Add</button>
+          </div>
+          <div class="product-item">
+            <div>
+              <div class="product-title">Ergonomic Wireless Mouse</div>
+              <div class="product-price">$49.99</div>
+            </div>
+            <button class="btn-add" onclick="addToCart('item-2', 'Wireless Mouse', 49.99)">+ Add</button>
+          </div>
+          <div class="product-item">
+            <div>
+              <div class="product-title">27-inch 4K IPS Monitor</div>
+              <div class="product-price">$349.00</div>
+            </div>
+            <button class="btn-add" onclick="addToCart('item-3', '4K IPS Monitor', 349.00)">+ Add</button>
+          </div>
+          <div class="product-item">
+            <div>
+              <div class="product-title">USB-C Multiport Docking Station</div>
+              <div class="product-price">$69.50</div>
+            </div>
+            <button class="btn-add" onclick="addToCart('item-4', 'USB-C Docking Station', 69.50)">+ Add</button>
+          </div>
+          <div class="product-item">
+            <div>
+              <div class="product-title">Active Noise-Canceling Headphones</div>
+              <div class="product-price">$199.99</div>
+            </div>
+            <button class="btn-add" onclick="addToCart('item-5', 'Noise-Canceling Headphones', 199.99)">+ Add</button>
+          </div>
+        </div>
+        <div class="cart-summary">
+          <span>Cart (<span id="cart-count">1</span> items)</span>
+          <span id="cart-total">$89.99</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Manual Direct Triggers (Local Test)</h2>
+        <div class="action-panel">
+          <button class="btn-action btn-normal" onclick="triggerTestOrder('normal')">
+            <span>✅ Send Order via Active Global State</span>
+            <span>POST /api/orders ➔</span>
+          </button>
+          <button class="btn-action btn-heavy" onclick="triggerTestOrder('heavy')">
+            <span>🐢 Force Heavy Order (>10 items)</span>
+            <span>3s DB Span ➔</span>
+          </button>
+          <button class="btn-action btn-auth" onclick="triggerTestOrder('invalid-auth')">
+            <span>⛔ Force Auth Timeout (Bearer invalid)</span>
+            <span>5s Timeout ➔</span>
+          </button>
+          <button class="btn-action btn-batch" onclick="triggerBatchOrders(10)">
+            <span>⚡ Fire 10 Diverse Orders Batch</span>
+            <span>Fill Waterfall ➔</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Execution Logs -->
+    <div class="card">
+      <h2>Live Gateway Execution Log</h2>
+      <div class="result-box" id="log-box">
+        <div class="result-line" style="color: #64748b;">Ready. Toggle any chaos mode or place an order on Amazon (:4003).</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_GATEWAY = window.API_GATEWAY_URL || 'http://localhost:3000';
+    let currentActiveMode = 'normal';
+
+    let cart = [{ id: 'item-1', name: 'Mechanical Keyboard', price: 89.99, qty: 1 }];
+
+    function updateCartUI() {
+      const count = cart.reduce((sum, i) => sum + i.qty, 0);
+      const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+      document.getElementById('cart-count').textContent = count;
+      document.getElementById('cart-total').textContent = '$' + total.toFixed(2);
+    }
+
+    function addToCart(id, name, price) {
+      const existing = cart.find(i => i.id === id);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ id, name, price, qty: 1 });
+      }
+      updateCartUI();
+      log(`Added 1x ${name} to cart.`);
+    }
+
+    function log(msg, className = '') {
+      const box = document.getElementById('log-box');
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'result-line ' + className;
+      div.innerHTML = `[${time}] ${msg}`;
+      box.prepend(div);
+    }
+
+    async function setChaosMode(mode) {
+      try {
+        const res = await fetch(`${API_GATEWAY}/api/chaos-state`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode })
+        });
+        const data = await res.json();
+        if (data.success) {
+          applyStateUI(data.chaosState.mode, data.chaosState.description);
+          log(`Global Chaos state changed to: <strong>${mode.toUpperCase()}</strong>. Amazon storefront will now reflect this!`, 'status-200');
+        }
+      } catch (err) {
+        log(`Failed to update chaos state on gateway: ${err.message}`, 'status-500');
+      }
+    }
+
+    function applyStateUI(mode, desc) {
+      currentActiveMode = mode;
+      document.querySelectorAll('.btn-toggle').forEach(el => el.classList.remove('active'));
+      const activeBtn = document.getElementById(`mode-${mode}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const nameEl = document.getElementById('active-state-name');
+      const descEl = document.getElementById('chaos-description');
+      const dot = document.getElementById('state-dot');
+
+      nameEl.textContent = mode.toUpperCase();
+      descEl.textContent = desc;
+
+      if (mode === 'normal') {
+        dot.style.background = '#10b981';
+      } else if (mode === 'heavy') {
+        dot.style.background = '#f59e0b';
+      } else if (mode === 'invalid-auth' || mode === 'payment-503') {
+        dot.style.background = '#ef4444';
+      } else {
+        dot.style.background = '#8b5cf6';
+      }
+    }
+
+    async function pollChaosState() {
+      try {
+        const res = await fetch(`${API_GATEWAY}/api/chaos-state`);
+        if (res.ok) {
+          const state = await res.json();
+          if (state.mode !== currentActiveMode) {
+            applyStateUI(state.mode, state.description);
+          }
+          document.getElementById('chaos-sync-time').textContent = 'Synced ' + new Date().toLocaleTimeString();
+        }
+      } catch (_) {}
+    }
+
+    async function triggerTestOrder(overrideMode) {
+      const start = Date.now();
+      let payload = { userId: 'user-42', items: [...cart] };
+      let headers = { 'Content-Type': 'application/json' };
+
+      if (overrideMode === 'heavy') {
+        payload.items = [];
+        for (let i = 1; i <= 12; i++) {
+          payload.items.push({ id: `item-${i}`, name: `Bulk Item #${i}`, qty: 1, price: 10.00 });
+        }
+        log('Executing forced Heavy Order (>10 items)...');
+      } else if (overrideMode === 'invalid-auth') {
+        headers['Authorization'] = 'Bearer invalid';
+        log('Executing forced Invalid Auth (Bearer invalid)...');
+      } else {
+        log(`Executing order with active state [${currentActiveMode}]...`);
+      }
+
+      try {
+        const res = await fetch(`${API_GATEWAY}/api/orders`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+        const elapsed = Date.now() - start;
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok) {
+          log(`✔ SUCCESS (${res.status} Created) in ${elapsed}ms. OrderId: ${data.orderId}`, 'status-200');
+        } else {
+          log(`✖ ERROR (${res.status} ${res.statusText}) in ${elapsed}ms: ${data.error || data.message || 'Failed'}`, 'status-500');
+        }
+      } catch (err) {
+        log(`✖ NETWORK ERROR in ${Date.now() - start}ms: ${err.message}`, 'status-500');
+      }
+    }
+
+    async function triggerBatchOrders(count = 10) {
+      log(`Starting batch of ${count} requests...`, 'status-200');
+      for (let i = 1; i <= count; i++) {
+        await triggerTestOrder('normal');
+        await new Promise(r => setTimeout(r, 400));
+      }
+      log(`Batch completed.`, 'status-200');
+    }
+
+    updateCartUI();
+    setInterval(pollChaosState, 2000);
+    pollChaosState();
+  </script>
+</body>
+</html>

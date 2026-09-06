@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "service_unavailable",
+    "message": "Payment provider 503 error - gateway temporarily down",
+    "status": 503
+  }
+}
